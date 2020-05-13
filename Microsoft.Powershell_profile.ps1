@@ -56,9 +56,12 @@ function New-Gif
     $paletteFilename = "palette.png"
     $paletteLocation = Join-Path -Path $ffpmegPaletteFolder -ChildPath $paletteFolderName
     $paletteOutput = Join-Path -Path $paletteLocation -ChildPath $paletteFilename
+
     $outputDirectory = "C:\Users\jon\Pictures"
     $output = Join-Path -Path $outputDirectory -ChildPath $OutputFilename
-    $filters = "fps=$Framerate,scale=$Resolution:flags=lanczos"
+    
+    $filters = "fps=$($Framerate),scale=$($Resolution):flags=lanczos"
+    $paletteStatsMode = "palettegen=stats_mode=$($PaletteGenStatsMode)"
     $ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
 
     # Check to see that we've got a folder to drop the palette in; if we don't, make one
@@ -68,6 +71,6 @@ function New-Gif
         New-Item -Path $ffpmegPaletteFolder -Name $paletteFolderName -ItemType "directory"
     }
     
-    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,palettegen=stats_mode=$PalleteGenStatsMode" -y $paletteOutput
-    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -i $paletteOutput -lavfi "$filters [x]; [x][1:v] paletteuse=dither=sierra2" -y $output
+    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,$paletteStatsMode" -y $paletteOutput
+    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -i $paletteOutput -lavfi "$filters [x]; [x][1:v] paletteuse=dither=none" -y $output
 }
