@@ -39,8 +39,18 @@ function Update-NeoCities([string] $For)
     Pop-Location
 }
 
-function New-Gif ([string] $VideoFile, [int] $StartTime, [int] $Duration, [string] $OutputFilename = "output.gif") 
+function New-Gif  
 {
+    param (
+            [string] $VideoFile, 
+            [int] $StartTime,
+            [int] $Duration,
+            [int] $Framerate = 15,
+            [string] $Resolution = "320:-1",
+            [string] $PaletteGenStatsMode = "full",
+            [string] $OutputFilename = "output.gif"
+        )
+
     $ffpmegPaletteFolder = "C:\Users\jon\AppData\Local\Temp"
     $paletteFolderName = "ffmpeg-palette"
     $paletteFilename = "palette.png"
@@ -48,7 +58,7 @@ function New-Gif ([string] $VideoFile, [int] $StartTime, [int] $Duration, [strin
     $paletteOutput = Join-Path -Path $paletteLocation -ChildPath $paletteFilename
     $outputDirectory = "C:\Users\jon\Pictures"
     $output = Join-Path -Path $outputDirectory -ChildPath $OutputFilename
-    $filters = "fps=15,scale=320:-1:flags=lanczos"
+    $filters = "fps=$Framerate,scale=$Resolution:flags=lanczos"
     $ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
 
     # Check to see that we've got a folder to drop the palette in; if we don't, make one
@@ -58,6 +68,6 @@ function New-Gif ([string] $VideoFile, [int] $StartTime, [int] $Duration, [strin
         New-Item -Path $ffpmegPaletteFolder -Name $paletteFolderName -ItemType "directory"
     }
     
-    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,palettegen" -y $paletteOutput
-    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -i $paletteOutput -lavfi "$filters [x]; [x][1:v] paletteuse" -y $output
+    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,palettegen=stats_mode=$PalleteGenStatsMode" -y $paletteOutput
+    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -i $paletteOutput -lavfi "$filters [x]; [x][1:v] paletteuse=dither=sierra2" -y $output
 }
