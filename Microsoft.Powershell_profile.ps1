@@ -41,12 +41,12 @@ function Update-NeoCities([string] $For)
 
 function New-Gif ([string] $VideoFile, [int] $StartTime, [int] $Duration, [string] $OutputFilename = "output.gif") 
 {
-    $ffpmegPaletteFolder = C:\Users\jon\AppData\Local\Temp
+    $ffpmegPaletteFolder = "C:\Users\jon\AppData\Local\Temp"
     $paletteFolderName = "ffmpeg-palette"
     $paletteFilename = "palette.png"
     $paletteLocation = Join-Path -Path $ffpmegPaletteFolder -ChildPath $paletteFolderName
     $paletteOutput = Join-Path -Path $paletteLocation -ChildPath $paletteFilename
-    $outputDirectory = C:\Users\jon\Pictures
+    $outputDirectory = "C:\Users\jon\Pictures"
     $output = Join-Path -Path $outputDirectory -ChildPath $OutputFilename
     $filters = "fps=15,scale=320:-1:flags=lanczos"
     $ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
