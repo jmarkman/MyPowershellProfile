@@ -39,6 +39,38 @@ function Update-NeoCities([string] $For)
     Pop-Location
 }
 
+<#
+.Synopsis
+New-Gif creates an animated gif from a specified video file
+
+.Description
+Using ffpmeg, creates an animated gif from a specified video file. Find information about this at the following urls:
+- http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
+- https://superuser.com/a/556031
+
+.Parameter VideoFile
+The path to the video file. Must be an absolute path
+
+.Parameter StartTime
+The timestamp from the video to start from
+
+.Parameter Duration
+The length of the gif relative to the starting time
+
+.Parameter Framerate
+The framerate the resulting gif should play back at
+
+.Parameter Resolution
+The resolution of the resulting gif
+
+.Parameter PaletteGenStatsMode
+The mode palettegen should be in when processing the video file. "full" is the default value, but providing "diff"
+will force the palettegen to only focus on moving parts, and providing "single" will generate a palette for each
+individual frame in the gif
+
+.Parameter OutputFilename
+The filename to use for the gif. "output" is the default filename.
+#>
 function New-Gif  
 {
     param (
@@ -59,7 +91,7 @@ function New-Gif
 
     $outputDirectory = "C:\Users\jon\Pictures"
     $output = Join-Path -Path $outputDirectory -ChildPath $OutputFilename
-    
+
     $filters = "fps=$($Framerate),scale=$($Resolution):flags=lanczos"
     $paletteStatsMode = "palettegen=stats_mode=$($PaletteGenStatsMode)"
     $ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
@@ -71,6 +103,10 @@ function New-Gif
         New-Item -Path $ffpmegPaletteFolder -Name $paletteFolderName -ItemType "directory"
     }
     
+    Write-Output "Creating animated gif using '$VideoFile'"
+
     & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,$paletteStatsMode" -y $paletteOutput
     & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -i $paletteOutput -lavfi "$filters [x]; [x][1:v] paletteuse=dither=none" -y $output
+
+    Write-Output "Resulting gif: '$output'"
 }
