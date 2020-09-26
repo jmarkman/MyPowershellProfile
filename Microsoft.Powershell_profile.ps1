@@ -10,17 +10,21 @@ function twitch.tv([string]$Stream, [string]$Quality = "best")
 
 function Update-NeoCities([string] $For) 
 {
+    $gameBlogPath = "C:\Users\jon\Documents\Blogs\GameBlog\FightsAndFragChecks"
+    $programmingBlogPath = "C:\Users\jon\Documents\Blogs\ProgrammingBlog\programmingbutrelatable"
+
     if ($For -eq "games")
     {
         Write-Output "Updating game blog 'Fights And Frag Checks'"
-        Set-Location C:\Users\jon\Documents\StalinBlog\FightsAndFragChecks
-        Push-Location
+        Set-Location $gameBlogPath
     }
-    else 
+    elseif ($For -eq "work")
     {
-        Write-Output "Haven't created a work blog yet"  
-        return  
+        Write-Output "Updating game blog 'Programming, But Relatable'"  
+        Set-Location $programmingBlogPath
     }
+
+    Push-Location
 
     Write-Output "Calling 'hugo' to build website"
     hugo.exe
@@ -28,13 +32,9 @@ function Update-NeoCities([string] $For)
     Set-Location .\public
 
     Write-Output "Getting items in 'public' directory to push to Neocities"
-    $siteItems = Get-ChildItem
+    $currentLocation = Get-Location | Select-Object -ExpandProperty Path
 
-    foreach ($item in $siteItems)
-    {
-        Write-Output "Uploading $item"
-        neocities.exe upload $item.Name
-    }
+    NeocitiesNET.exe modify --upload $currentLocation
 
     Pop-Location
 }
