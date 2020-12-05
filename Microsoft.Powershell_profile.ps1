@@ -16,11 +16,13 @@ function Update-NeoCities([string] $For)
     if ($For -eq "games")
     {
         Write-Output "Updating game blog 'Fights And Frag Checks'"
+        NeocitiesNET.exe account --use "gsm"
         Set-Location $gameBlogPath
     }
     elseif ($For -eq "work")
     {
         Write-Output "Updating game blog 'Programming, But Relatable'"  
+        NeocitiesNET.exe account --use "jmarkman"
         Set-Location $programmingBlogPath
     }
 
@@ -58,10 +60,10 @@ The timestamp from the video to start from
 The length of the gif relative to the starting time
 
 .Parameter Framerate
-The framerate the resulting gif should play back at
+The framerate the resulting gif should play back at. Default is 15 fps.
 
 .Parameter Resolution
-The resolution of the resulting gif
+The resolution of the resulting gif. Default is 272p (480x272).
 
 .Parameter PaletteGenStatsMode
 The mode palettegen should be in when processing the video file. "full" is the default value, but providing "diff"
@@ -78,10 +80,18 @@ function New-Gif
             [int] $StartTime,
             [int] $Duration,
             [int] $Framerate = 15,
-            [string] $Resolution = "320:-1",
+            [int] $Resolution = 272,
             [string] $PaletteGenStatsMode = "full",
             [string] $OutputFilename = "output.gif"
         )
+
+    $resolutionDict = @{
+        240 = "320:-1";
+        272 = "480:-1";
+        360 = "640:-1";
+        480 = "848:-1";
+        540 = "960:-1";
+    }
 
     $ffpmegPaletteFolder = "C:\Users\jon\AppData\Local\Temp"
     $paletteFolderName = "ffmpeg-palette"
@@ -92,7 +102,8 @@ function New-Gif
     $outputDirectory = "C:\Users\jon\Pictures"
     $output = Join-Path -Path $outputDirectory -ChildPath $OutputFilename
 
-    $filters = "fps=$($Framerate),scale=$($Resolution):flags=lanczos"
+    $gifResolution = $resolutionDict[$Resolution];
+    $filters = "fps=$($Framerate),scale=$($gifResolution):flags=lanczos"
     $paletteStatsMode = "palettegen=stats_mode=$($PaletteGenStatsMode)"
     $ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
 
