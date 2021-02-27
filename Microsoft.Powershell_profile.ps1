@@ -8,6 +8,14 @@ function twitch.tv([string]$Stream, [string]$Quality = "best")
     streamlink "https://www.twitch.tv/$($Stream)" $Quality
 }
 
+<#
+.SYNOPSIS
+Update-NeoCities generates my Hugo blogs and synchronizes the content to NeoCities.
+
+.PARAMETER For
+Specifies which blog to update. "games" will update my game blog, "work" will
+update my programming blog.
+#>
 function Update-NeoCities([string] $For) 
 {
     $gameBlogPath = "C:\Users\jon\Documents\Blogs\GameBlog\FightsAndFragChecks"
@@ -63,7 +71,7 @@ The length of the gif relative to the starting time
 The framerate the resulting gif should play back at. Default is 15 fps.
 
 .Parameter Resolution
-The resolution of the resulting gif. Default is 272p (480x272).
+The resolution of the resulting gif. Default is 480 (480x272). Available resolutions are [320, 480, 640, 848, 960].
 
 .Parameter PaletteGenStatsMode
 The mode palettegen should be in when processing the video file. "full" is the default value, but providing "diff"
@@ -80,17 +88,23 @@ function New-Gif
             [int] $StartTime,
             [int] $Duration,
             [int] $Framerate = 15,
-            [int] $Resolution = 272,
+            [int] $Resolution = 480,
             [string] $PaletteGenStatsMode = "full",
             [string] $OutputFilename = "output.gif"
         )
 
     $resolutionDict = @{
-        240 = "320:-1";
-        272 = "480:-1";
-        360 = "640:-1";
-        480 = "848:-1";
-        540 = "960:-1";
+        320 = "320:-1";
+        480 = "480:-1";
+        640 = "640:-1";
+        848 = "848:-1";
+        960 = "960:-1";
+    }
+
+    if (-not (Test-Path $VideoFile))
+    {
+        Write-Output "The supplied filepath was invalid"
+        return
     }
 
     $ffpmegPaletteFolder = "C:\Users\jon\AppData\Local\Temp"
@@ -102,10 +116,10 @@ function New-Gif
     $outputDirectory = "C:\Users\jon\Pictures"
     $output = Join-Path -Path $outputDirectory -ChildPath $OutputFilename
 
-    $gifResolution = $resolutionDict[$Resolution];
+    $gifResolution = $resolutionDict[$Resolution]
     $filters = "fps=$($Framerate),scale=$($gifResolution):flags=lanczos"
     $paletteStatsMode = "palettegen=stats_mode=$($PaletteGenStatsMode)"
-    $ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
+    $ffmpeg = "C:\Program Files\ffmpeg\ffmpeg.exe"
 
     # Check to see that we've got a folder to drop the palette in; if we don't, make one
     # TodayILearned: https://stackoverflow.com/a/50366338
@@ -116,7 +130,8 @@ function New-Gif
     
     Write-Output "Creating animated gif using '$VideoFile'"
 
-    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,$paletteStatsMode" -y $paletteOutput
+    & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -vf "$filters,$paletteStatsMode" -y $paletteOutput 
+    
     & $ffmpeg -v warning -ss $StartTime -t $Duration -i $VideoFile -i $paletteOutput -lavfi "$filters [x]; [x][1:v] paletteuse=dither=none" -y $output
 
     Write-Output "Resulting gif: '$output'"
