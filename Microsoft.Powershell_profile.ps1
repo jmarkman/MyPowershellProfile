@@ -136,3 +136,12 @@ function New-Gif
 
     Write-Output "Resulting gif: '$output'"
 }
+
+<#
+.Synopsis
+Create a new React TypeScript project in the current directory
+#>
+function New-ReactTS([string] $ProjectName)
+{
+    & npx.cmd create-react-app $ProjectName --template typescript
+}
