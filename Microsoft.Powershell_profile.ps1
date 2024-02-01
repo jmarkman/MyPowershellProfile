@@ -12,6 +12,35 @@ function twitch.tv([string]$Stream, [string]$Quality = "best")
 
 <#
 .SYNOPSIS
+Downloads video clips from various websites using yt-dlp. Switches to my storage drive
+and back again. Also calls the --cookies-from-browser param for downloading twitter/X
+videos.
+
+.PARAMETER IncomingSource
+The url where the video content to download lives
+#>
+function ytdl([string]$IncomingSource)
+{
+    $twitterHosts = @("x.com", "twitter.com")
+
+    Push-Location G:\
+
+    $url = ([System.Uri]$IncomingSource)
+
+    if ($url.Host.ToLower() -in $twitterHosts)
+    {
+        yt-dlp.exe $IncomingSource --cookies-from-browser firefox
+    }
+    else 
+    {
+        yt-dlp.exe $IncomingSource    
+    }
+
+    Pop-Location
+}
+
+<#
+.SYNOPSIS
 Update-NeoCities generates my Hugo blogs and synchronizes the content to NeoCities.
 
 .PARAMETER For
