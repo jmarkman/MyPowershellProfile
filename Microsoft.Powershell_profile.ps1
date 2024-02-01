@@ -153,19 +153,6 @@ function New-APng
     & $ffmpeg -i $InputPath -plays 0 -t 1 -vf "setpts=PTS-STARTPTS, hqdn3d=1.5:1.5:6:6" $output
 }
 
-<#
-.Synopsis
-Create a new React TypeScript project in the current directory
-#>
-function New-ReactTS([string] $ProjectName)
-{
-    $currentLocation = Get-Location | Select-Object -ExpandProperty Path
-
-    $projectPath = Join-Path -Path $currentLocation -ChildPath $ProjectName
-
-    & npx.cmd create-react-app $projectPath --template typescript
-}
-
 function Join-Zoom([string] $Room = "")
 {
     $rooms = Get-Content -Path "C:\Users\jon\Documents\WindowsPowerShell\zoom-rooms.txt"
